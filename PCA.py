@@ -1,5 +1,5 @@
 import numpy as np
-import pylab
+from matplotlib import pylab
 from Utility import VectorCol
 
 
@@ -12,14 +12,18 @@ class PCA:
         self.mean = 0
         self.conversion = 0
         self.data = []
+        self.label = []
         self.LoadData()
         self.CalculateMean()
         self.CenterData()
-        self.ConvertionMatrix()
+        self.ConversionMatrix()
         self.Eigenvectors()
+        self.PlotFunction()
 
     def LoadData(self):
-        self.data = np.genfromtxt("test.txt", delimiter=",")
+        self.data = np.genfromtxt("Train.txt", delimiter=",")
+        self.label = self.data[:, -1].T
+        self.data = self.data[:, :-1].T
 
     def CalculateMean(self):
         self.mean = self.data.mean(1)
@@ -27,7 +31,7 @@ class PCA:
     def CenterData(self):
         self.data = self.data - VectorCol(self.mean)
 
-    def ConvertionMatrix(self):
+    def ConversionMatrix(self):
         self.conversion = np.dot(self.data, self.data.T) / self.data.shape[1]
 
     def Eigenvectors(self):
@@ -36,9 +40,24 @@ class PCA:
 
     def PlotFunction(self):
         projection_list = np.dot(self.egin_vector.T, self.data)
-        pylab.scatter(projection_list[0], projection_list[1])
+        men = projection_list[:, self.label == 0]
+        women = projection_list[:, self.label == 1]
+        pylab.scatter(men[0, :], men[1, :])
+        pylab.scatter(women[0, :], women[1, :])
+        pylab.xlabel('Principal component 1')
+        pylab.ylabel('Principal component 2')
+        pylab.legend(['men', 'women'])
         pylab.show()
 
 
-hi = PCA(3)
-hi.PlotFunction()
+pca = PCA(11)
+# pca1 = PCA(10)
+# pca2 = PCA(9)
+# pca3 = PCA(8)
+# pca4 = PCA(7)
+# pca5 = PCA(6)
+# pca6 = PCA(5)
+# pca7 = PCA(4)
+# pca8 = PCA(3)
+# pca9 = PCA(2)
+
