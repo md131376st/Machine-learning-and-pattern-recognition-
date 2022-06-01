@@ -42,15 +42,17 @@ class PCA:
         projection_list = np.dot(self.egin_vector.T, self.data)
         men = projection_list[:, self.label == 0]
         women = projection_list[:, self.label == 1]
+
         pylab.scatter(men[0, :], men[1, :])
         pylab.scatter(women[0, :], women[1, :])
+        # pylab.scatter(projection_list[0],projection_list[1])
         pylab.xlabel('Principal component 1')
         pylab.ylabel('Principal component 2')
-        pylab.legend(['men', 'women'])
+        pylab.legend(['men', 'women', "allData"])
         pylab.show()
 
 
-pca = PCA(11)
+# pca = PCA(11)
 # pca1 = PCA(10)
 # pca2 = PCA(9)
 # pca3 = PCA(8)
