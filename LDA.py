@@ -38,7 +38,6 @@ class LDA:
 
         pylab.scatter(men[0, :], men[1, :])
         pylab.scatter(women[0, :], women[1, :])
-        # pylab.scatter(projection_list[0],projection_list[1])
         pylab.xlabel('Principal component 1')
         pylab.ylabel('Principal component 2')
         pylab.legend(['men', 'women', "allData"])
