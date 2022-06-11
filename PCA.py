@@ -39,9 +39,9 @@ class PCA:
         self.egin_vector = self.egin_vector[:, 0:self.m]
 
     def PlotFunction(self):
-        projection_list = np.dot(self.egin_vector.T, self.data)
-        men = projection_list[:, self.label == 0]
-        women = projection_list[:, self.label == 1]
+        self.projection_list = np.dot(self.egin_vector.T, self.data)
+        men = self.projection_list[:, self.label == 0]
+        women = self.projection_list[:, self.label == 1]
 
         pylab.scatter(men[0, :], men[1, :])
         pylab.scatter(women[0, :], women[1, :])
