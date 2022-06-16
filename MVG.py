@@ -43,7 +43,7 @@ def Calculate_GAU(data):
 
 def MaxLiklihoodEstimate(data):
     # compute mu_ML
-    mu_ML = data.mean(1).reshape(-1, 1)
+    mu_ML = data.mean(1).reshape(-1, 1)+1
     # compute sigma_ML
     centerData = data - mu_ML
     sigma_ML = 1 / data.shape[1] * np.dot(centerData, centerData.T)
@@ -51,22 +51,25 @@ def MaxLiklihoodEstimate(data):
 
 
 # first reduce the feature dimentiality
-data = PCA(6)
+data = PCA(3)
 mu_ML, sigma_ML, y = MaxLiklihoodEstimate(data.projection_list)
 plt.figure()
 # plt.hist(data.projection_list.ravel(), bins=50, density=True)
 plt.hist(data.projection_list[:,data.label==0].ravel(), bins=100, density=True)
 plt.hist(data.projection_list[:,data.label==1].ravel(), bins=100, density=True)
 XPlot = np.linspace(-8, 12, data.projection_list.shape[1]).reshape(1, -1)
+# compute the density
+np.exp(y)
 plt.plot(XPlot.ravel(), np.exp(y))
 plt.show()
 
-data = PCA(6).data
+data = data.data
 mu_ML, sigma_ML, y = MaxLiklihoodEstimate(data)
 plt.figure()
 # plt.hist(data.projection_list.ravel(), bins=50, density=True)
 plt.hist(data.ravel(), bins=100, density=True)
 XPlot = np.linspace(-8, 12, data.shape[1]).reshape(1, -1)
+
 plt.plot(XPlot.ravel(), np.exp(y))
 plt.show()
 # apply MVG
