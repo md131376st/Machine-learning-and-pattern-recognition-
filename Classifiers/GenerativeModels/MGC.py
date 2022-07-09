@@ -1,11 +1,15 @@
 import numpy as np
 import scipy.special as ss
-from Data.Info import Info
+from Data.Info import Info, KFold
 
 
 class MGC:
-    def __init__(self):
-        self.info = Info()
+    def __init__(self, info=None):
+        # if selected for final modeling
+        if info is None:
+            self.info = Info()
+        else:
+            self.info = info
         self.classTypes = len(set(self.info.testlable))
         self.mu_classes = []  # list of empirical mean for each class
         self.cov_classes = []  # list of covariance matrix for each class
@@ -18,7 +22,7 @@ class MGC:
             self.mu_classes.append(mean)
             self.cov_classes.append(covariance)
 
-    def applyMGCOnTest(self):
+    def applyTest(self):
         self.score = np.zeros(shape=(self.classTypes, self.info.testData.shape[1]))
         for i in range(self.info.testData.shape[1]):
             xt = self.info.testData[:, i:i + 1]
@@ -36,10 +40,10 @@ class MGC:
         self.SPost = np.exp(log_SPost)
         pass
 
-    def checkAcc(self):
+    def checkAcc(self,classifier):
         predicted_labels = np.argmax(self.SPost, axis=0)
         corrected_assigned_labels = self.info.testlable == predicted_labels
-        self.info.ValidatClassfier(sum(corrected_assigned_labels), "MGV")
+        self.info.ValidatClassfier(sum(corrected_assigned_labels), classifier)
         pass
 
     def logpdf_GAU_ND_1sample(self, x, mu, C):
@@ -52,6 +56,8 @@ class MGC:
 
 
 if __name__ == "__main__":
-    MGC = MGC()
-    MGC.applyMGCOnTest()
-    MGC.checkAcc()
+    KFold = KFold(10)
+    for i in range(KFold.k):
+        MGC_ = MGC(KFold.infoSet[i])
+        MGC_.applyTest()
+        MGC_.checkAcc("MGV")
