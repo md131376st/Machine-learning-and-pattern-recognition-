@@ -34,6 +34,7 @@ def Calculate_GAU(data):
 
 def MaxLiklihoodEstimate(data):
     # compute mu_ML
+    # we add one to have at least 1 attribute for each feature
     mu_ML = data.mean(1).reshape(-1, 1) + 1
     # compute sigma_ML
     centerData = data - mu_ML
