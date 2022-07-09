@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from Info import Info
-from PCA import PCA
+from DimensionalityReduction.PCA import PCA
 
 
 def logpdf_GAU_ND(x, mu, C):

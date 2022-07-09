@@ -18,7 +18,6 @@ class MGC:
             covariance = 1 / size * np.dot(trainData - mean, (trainData - mean).T)
             self.mu_classes.append(mean)
             self.cov_classes.append(covariance)
-        self.applyMGCOnTest()
 
     def applyMGCOnTest(self):
         self.score = np.zeros(shape=(self.classTypes, self.info.testData.shape[1]))
@@ -53,4 +52,7 @@ class MGC:
         return -M / 2 * np.log(2 * np.pi) - 1 / 2 * log_abs_detC - 1 / 2 * np.dot(np.dot(xc.T, invC), xc)
 
 
-MGC().checkAcc()
+MGC = MGC()
+MGC.applyMGCOnTest()
+MGC.checkAcc()
+
