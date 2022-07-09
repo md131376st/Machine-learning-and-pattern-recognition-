@@ -18,7 +18,7 @@ class TNB(TCG):
 
 
 if __name__ == "__main__":
-    KFold=KFold(10)
+    KFold = KFold(10)
     for i in range(KFold.k):
         TiedNaiveBayes = TNB(KFold.infoSet[i])
         TiedNaiveBayes.applyTest()
