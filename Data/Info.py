@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 
@@ -8,10 +10,10 @@ class Info:
         self.err = 0
 
     def LoadData(self):
-        self.data = np.genfromtxt("Train.txt", delimiter=",")
+        self.data = np.genfromtxt(os.path.join(os.path.dirname(os.path.abspath(__file__)))+"/Train.txt", delimiter=",")
         self.label = self.data[:, -1].T
         self.data = self.data[:, :-1].T
-        self.test = np.genfromtxt("Test.txt", delimiter=",")
+        self.test = np.genfromtxt(os.path.join(os.path.dirname(os.path.abspath(__file__)))+"/Test.txt", delimiter=",")
         self.testData = self.test[:, :-1].T
         self.testlable = self.test[:, -1].T
 
@@ -25,3 +27,6 @@ class Info:
         self.CheckAccuracy(sum_correct_assign)
         self.CalculateErrorRate()
         print(classfierName + ':  Error rate %f%%' % (self.err * 100))
+
+
+Info()

@@ -1,7 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.special as ss
-from Info import Info
+from Data.Info import Info
 
 
 class MGC:
@@ -52,7 +51,7 @@ class MGC:
         return -M / 2 * np.log(2 * np.pi) - 1 / 2 * log_abs_detC - 1 / 2 * np.dot(np.dot(xc.T, invC), xc)
 
 
-MGC = MGC()
-MGC.applyMGCOnTest()
-MGC.checkAcc()
-
+if __name__ == "__main__":
+    MGC = MGC()
+    MGC.applyMGCOnTest()
+    MGC.checkAcc()

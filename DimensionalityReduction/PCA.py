@@ -21,7 +21,7 @@ class PCA:
         self.PlotFunction()
 
     def LoadData(self):
-        self.data = np.genfromtxt("../Train.txt", delimiter=",")
+        self.data = np.genfromtxt("../Data/Train.txt", delimiter=",")
         self.label = self.data[:, -1].T
         self.data = self.data[:, :-1].T
 

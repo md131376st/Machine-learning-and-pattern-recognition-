@@ -68,7 +68,7 @@ class LDA:
         self.sw /= self.SumAllDataValues
 
     def LoadData(self):
-        self.data = np.genfromtxt("../Train.txt", delimiter=",")
+        self.data = np.genfromtxt("../Data/Train.txt", delimiter=",")
         self.labels = self.data[:, -1].T
         self.data = self.data[:, :-1].T
 
