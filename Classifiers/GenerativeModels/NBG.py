@@ -20,4 +20,5 @@ if __name__ == "__main__":
     for i in range(KFold.k):
         NaiveBayes = NBG(KFold.infoSet[i])
         NaiveBayes.applyTest()
-        NaiveBayes.checkAcc("NBG")
+        KFold.addscoreList(NaiveBayes.checkAcc())
+    KFold.ValidatClassfier("NBG")

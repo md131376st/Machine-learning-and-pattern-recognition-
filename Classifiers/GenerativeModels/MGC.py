@@ -8,7 +8,7 @@ from Data.Info import Info, KFold
 class MGC(AlgorithmBasic):
     def __init__(self, info=None):
         super().__init__(info)
-       
+
 
         self.classTypes = len(set(self.info.testlable))
         self.mu_classes = []  # list of empirical mean for each class
@@ -40,10 +40,9 @@ class MGC(AlgorithmBasic):
         self.SPost = np.exp(log_SPost)
         pass
 
-    def checkAcc(self,classifier):
+    def checkAcc(self):
         predicted_labels = np.argmax(self.SPost, axis=0)
-        corrected_assigned_labels = self.info.testlable == predicted_labels
-        self.info.ValidatClassfier(sum(corrected_assigned_labels), classifier)
+        return self.info.testlable == predicted_labels
         pass
 
     def logpdf_GAU_ND_1sample(self, x, mu, C):
@@ -60,4 +59,5 @@ if __name__ == "__main__":
     for i in range(KFold.k):
         MGC_ = MGC(KFold.infoSet[i])
         MGC_.applyTest()
-        MGC_.checkAcc("MGV")
+        KFold.addscoreList(MGC_.checkAcc())
+    KFold.ValidatClassfier("MGC")

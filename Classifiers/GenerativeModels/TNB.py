@@ -22,4 +22,5 @@ if __name__ == "__main__":
     for i in range(KFold.k):
         TiedNaiveBayes = TNB(KFold.infoSet[i])
         TiedNaiveBayes.applyTest()
-        TiedNaiveBayes.checkAcc("TNB")
+        KFold.addscoreList(TiedNaiveBayes.checkAcc())
+    KFold.ValidatClassfier("TCG")

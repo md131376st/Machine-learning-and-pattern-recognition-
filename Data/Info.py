@@ -46,12 +46,14 @@ class KFold:
         self.LoadData()
         self.infoSet = []
         self.GenerateInfoDataWithTest()
+        self.scoreList =[]
         pass
 
     def LoadData(self):
         self.data = np.genfromtxt(os.path.join(os.path.dirname(os.path.abspath(__file__)))
                                   + "/Train.txt",
                                   delimiter=",")
+        self.lables = self.data[:, -1].T
         self.size = int((self.data.shape[0]) / 2)
         self.wemonData = self.data[self.size:, :]
         self.MenData = self.data[:self.size, :]
@@ -72,3 +74,22 @@ class KFold:
             for j in range(i + 1, self.k):
                 data = np.concatenate((data, self.foldList[j]))
             self.infoSet.append(Info(data, test, True))
+
+    def addscoreList(self, scores):
+        self.scoreList = np.concatenate((self.scoreList, scores))
+
+    def CheckAccuracy(self):
+        self.Accoracy = sum(self.scoreList) / len(self.lables)
+
+    def ValidatClassfier(self, classfierName):
+        self.CheckAccuracy()
+        self.CalculateErrorRate()
+        print(classfierName + ':  Error rate %f%%' % (self.err * 100))
+
+    def CalculateErrorRate(self):
+        self.err = 1 - self.Accoracy
+
+    def checkAcc(self, classifier, corrected_assigned_labels):
+
+        self.ValidatClassfier(sum(corrected_assigned_labels), classifier + " with lambda=" + str(self.l) + '')
+        pass

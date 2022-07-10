@@ -21,7 +21,7 @@ class BLR(AlgorithmBasic):
                                                                               self.info.testData.shape[0] + 1),
                                                                           approx_grad=True,
                                                                           iprint=0)
-        print('Number of iterations: %s' % (self.d['funcalls']))
+        # print('Number of iterations: %s' % (self.d['funcalls']))
 
         pass
 
@@ -36,9 +36,9 @@ class BLR(AlgorithmBasic):
 
         pass
 
-    def checkAcc(self, classifier):
-        corrected_assigned_labels = self.info.testlable == (self.score > 0)
-        self.info.ValidatClassfier(sum(corrected_assigned_labels), classifier + " with lambda=" + str(self.l) + '')
+    def checkAcc(self):
+        return self.info.testlable == (self.score > 0)
+        # self.info.ValidatClassfier(sum(corrected_assigned_labels), classifier + " with lambda=" + str(self.l) + '')
         pass
 
     def __compute_zi(self, ci):
@@ -71,14 +71,14 @@ class BLR(AlgorithmBasic):
 
 
 if __name__ == "__main__":
-    KFold = KFold(10)
+    errorRate=[]
     lambdaList = [10 ** -6, 10 ** -3, 10 ** -1, 1, 10]
-    errorRateList = np.zeros(shape=(len(lambdaList), KFold.k))
     for j in range(len(lambdaList)):
-        for i in range(KFold.k):
-            print("fold Number:" + str(i))
-            logRegObj = BLR(KFold.infoSet[i], lambdaList[j])
+        KFold_ = KFold(10)
+        for i in range(KFold_.k):
+            # print("fold Number:" + str(i))
+            logRegObj = BLR(KFold_.infoSet[i], lambdaList[j])
             logRegObj.applyTest()
-            logRegObj.checkAcc("BLR")
-            errorRateList[j][i] = logRegObj.info.err * 100
-    pd.DataFrame(errorRateList).to_csv("BlRErrorRates.csv", columns=range(KFold.k))
+            KFold_.addscoreList(logRegObj.checkAcc())
+        KFold_.ValidatClassfier("BLR with lambda=" + str(lambdaList[j]) + '')
+        errorRate.append(KFold_.err)

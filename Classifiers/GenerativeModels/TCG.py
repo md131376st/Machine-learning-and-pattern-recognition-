@@ -20,4 +20,5 @@ if __name__ == "__main__":
     for i in range(KFold.k):
         TCG_ = TCG(KFold.infoSet[i])
         TCG_.applyTest()
-        TCG_.checkAcc("TCG")
+        KFold.addscoreList(TCG_.checkAcc())
+    KFold.ValidatClassfier("TCG")
