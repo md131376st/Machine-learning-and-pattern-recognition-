@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-from DimensionalityReduction.PCA import PCA
+from PCA import PCA
 import scipy.stats
 
 

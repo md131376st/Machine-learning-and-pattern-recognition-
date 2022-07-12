@@ -1,6 +1,6 @@
 import numpy as np
-from Classifiers.algorithemsBasic import AlgorithmBasic
-from Data.Info import KFold
+from algorithemsBasic import AlgorithmBasic
+from Info import KFold
 import scipy.optimize
 import scipy.special
 
@@ -70,13 +70,16 @@ if __name__ == "__main__":
     for eps in listeps:
         for c in listC:
             for gamma in listGama:
+                listScore=[]
                 for i in range(KFold.k):
                     LinearSVM = KSVM(KFold.infoSet[i],  'RBF',c, 1, eps, gamma)
                     LinearSVM.applyTest()
                     KFold.addscoreList(LinearSVM.checkAcc())
+                    listScore=np.concatenate(( listScore,LinearSVM.C))
                     # KFold.addRealScore(LinearSVM.S)
                 KFold.ValidatClassfier('KernelSVM RBF  C=%.1f, K=1, eps=%f, gamma=%f ' % (
                     c, eps, gamma))
+                np.savetxt("kernelRunRBF"+ str(c)+"_eps"+str(eps)+"_gamma"+str(gamma)+".txt",listScore )
                 KFold.scoreList = []
                 # calibration
                 for i in range(KFold.k):

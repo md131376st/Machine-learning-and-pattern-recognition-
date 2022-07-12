@@ -5,7 +5,7 @@ def readingdata():
 
     TrainData = []
     TrainLable = []
-    with open('ML-Project/Train.txt') as TraintFile:
+    with open('ZohCoding/Train.txt') as TraintFile:
         
         for line in TraintFile:
             D = line.split(",")
@@ -24,10 +24,8 @@ def readingdata():
     return (TrainData_array,TrainLable_array)
     # print(TrainLable_array)
     # print(TrainData_array.shape)
-
-           
-            
-         
+       
+                
 # import sklearn.datasets
 # data , label=  sklearn.datasets.load_iris()['data'].T, sklearn.datasets.load_iris()['target']
 # # print((data,label))
@@ -69,21 +67,28 @@ def plot_scatter(D, L):
     # D2 = D[:, L==2]
 
     plt.figure()
-    plt.scatter(Men[0, :], Men[1, :], label = 'Setosa')
-    plt.scatter(women[0, :], women[1, :], label = 'Versicolor')
+    plt.scatter(Men[0, :], Men[1, :], label = 'men')
+    plt.scatter(women[0, :], women[1, :], label = 'women')
     # plt.scatter(D2[0, :], D2[1, :], label = 'Virginica')
         
     plt.show()
 
 
-D, L = readingdata()
-DP = PCA(D, 2)
+# D, L = readingdata()
+# DP = PCA(D, 2)
 
-plot_scatter(DP, L)
+# plot_scatter(DP, L)
 
+
+def LoadData():
+        data = numpy.genfromtxt("Train.txt", delimiter=",")
+        return (data[:, -1].T, data[:, :-1].T)
+
+L, D = LoadData()
 def logpdf_GAU_ND(X, mu, C):
     p = numpy.linalg.inv(C)
     return -0.5*X.shape[0]*numpy.log(numpy.pi*2) + 0.5* numpy.linalg.slogdet(p)[1]- 0.5*(numpy.dot(p,(X-mu))*(X-mu)).sum(0)
+
 
 def ML_GAU(D):
     mu = vcol(D.mean(1))
@@ -96,3 +101,11 @@ def ML_GAU(D):
 def loglikelihood(X, mu, C):
     return logpdf_GAU_ND(X, mu, C).sum()
 
+print(vrow(D).shape)
+plt.figure()
+XPlot = numpy.linspace(-8, 12, 1000)
+mu = emprialmean(D)
+C = Covariance(D)
+plt.plot(XPlot.ravel(), numpy.exp(logpdf_GAU_ND(vrow(XPlot), mu, C)))
+plt.show()
+plot_scatter(L,D)

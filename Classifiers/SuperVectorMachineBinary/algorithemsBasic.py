@@ -1,4 +1,4 @@
-from Data.Info import Info
+from Info import Info
 
 
 class AlgorithmBasic:

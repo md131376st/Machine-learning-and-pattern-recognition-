@@ -1,8 +1,9 @@
 import numpy as np
-from Classifiers.algorithemsBasic import AlgorithmBasic
-from Data.Info import KFold
+from algorithemsBasic import AlgorithmBasic
+from Info import KFold
 import scipy.optimize
 import scipy.special
+
 
 
 # Linear Support vector machines
@@ -64,15 +65,17 @@ if __name__ == "__main__":
     listK = [1, 10]
     for c in listC:
         for k in listK:
+            listScore=[]
             for i in range(KFold.k):
                 LinearSVM = LSVM(KFold.infoSet[i], c, k)
                 LinearSVM.applyTest()
                 print('Primal loss: %f,Dual loss: %f, Duality gap: %.9f' % (
                     LinearSVM.primal_loss, LinearSVM.dual_loss, LinearSVM.duality_gap))
                 KFold.addscoreList(LinearSVM.checkAcc())
-                KFold.addRealScore(LinearSVM.S)
+                listScore=np.concatenate(( listScore,LinearSVM.C))
             KFold.ValidatClassfier('LinerSVM C=%.1f, K=%d' % (
                 c, k))
+            np.savetxt("LinerSVM"+ str(c)+"_k"+str(k)+".txt",listScore )
             KFold.scoreList = []
             # calibration
             for i in range(KFold.k):
