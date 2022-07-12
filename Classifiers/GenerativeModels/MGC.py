@@ -55,7 +55,7 @@ class MGC(AlgorithmBasic):
 
 
 if __name__ == "__main__":
-    KFold = KFold(10)
+    KFold = KFold(6)
     for i in range(KFold.k):
         MGC_ = MGC(KFold.infoSet[i])
         MGC_.applyTest()

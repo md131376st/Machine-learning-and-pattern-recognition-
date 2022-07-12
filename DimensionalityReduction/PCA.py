@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from matplotlib import pylab
 from Utility import VectorCol
@@ -18,10 +20,12 @@ class PCA:
         self.CenterData()
         self.ConversionMatrix()
         self.Eigenvectors()
-        self.PlotFunction()
+        # self.PlotFunction()
 
     def LoadData(self):
-        self.data = np.genfromtxt("../Data/Train.txt", delimiter=",")
+        self.data = np.genfromtxt(os.path.join(os.path.dirname(os.path.abspath(__file__)))
+                                  + "/Train.txt",
+                                  delimiter=",")
         self.label = self.data[:, -1].T
         self.data = self.data[:, :-1].T
 
@@ -37,9 +41,10 @@ class PCA:
     def Eigenvectors(self):
         self.egin_vector, s, vh = np.linalg.svd(self.conversion)
         self.egin_vector = self.egin_vector[:, 0:self.m]
+        self.projection_list = np.dot(self.egin_vector.T, self.data)
 
     def PlotFunction(self):
-        self.projection_list = np.dot(self.egin_vector.T, self.data)
+        # self.projection_list = np.dot(self.egin_vector.T, self.data)
         men = self.projection_list[:, self.label == 0]
         women = self.projection_list[:, self.label == 1]
 
@@ -53,7 +58,7 @@ class PCA:
 
 
 # pca = PCA(11)
-# pca1 = PCA(10)
+pca1 = PCA(10)
 # pca2 = PCA(9)
 # pca3 = PCA(8)
 # pca4 = PCA(7)
@@ -62,4 +67,3 @@ class PCA:
 # pca7 = PCA(4)
 # pca8 = PCA(3)
 # pca9 = PCA(2)
-

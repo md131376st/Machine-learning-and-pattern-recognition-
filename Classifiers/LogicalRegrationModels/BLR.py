@@ -1,9 +1,6 @@
-import numpy
 import numpy as np
 import scipy.optimize
 import scipy.special
-import pandas as pd
-
 from Classifiers.algorithemsBasic import AlgorithmBasic
 from Data.Info import KFold
 

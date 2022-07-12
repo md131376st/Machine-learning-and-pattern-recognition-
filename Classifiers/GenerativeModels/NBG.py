@@ -3,6 +3,7 @@ from Classifiers.GenerativeModels.MGC import MGC
 from Data.Info import KFold
 
 
+
 # calculate Naive Bayes Gaussian Classifier
 class NBG(MGC):
     def __init__(self, info):
