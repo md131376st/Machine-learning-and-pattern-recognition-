@@ -1,14 +1,84 @@
 import numpy
 import scipy.special
-import hi as mymath
+
 from Classifiers.algorithemsBasic import AlgorithmBasic
+from Data.Info import KFold
 
 
 class GMMEM(AlgorithmBasic):
-    def __init__(self, info=None):
+    def __init__(self, info=None, thresholdForEValues=0, numberOfComponents=1, model="full"):
         super().__init__(info)
+        self.N = self.info.data.shape[0]
+        self.thresholdForEValues = thresholdForEValues
+        self.numberOfComponents = numberOfComponents
+        self.model = model
+        self.GMM_EM_wrapper()
 
-    def GMM_EM(self, X, GMM, thresholdForEValues, model):
+    def imperical_mean(self):
+        self.mu = self.make_col_matrix(self.info.data.mean(1))
+
+    def make_col_matrix(self, row):
+        return row.reshape(row.size, 1)
+
+    def Cov_matrix(self, matrix):
+        return numpy.dot(matrix, matrix.T) / matrix.shape[1]
+
+    def normalize_data(self):
+        return self.info.data - self.mu
+
+    def GMM_EM_wrapper(self):
+        self.imperical_mean()
+        self.C = self.Cov_matrix(self.normalize_data())
+        gmm_init_0 = [(1.0, self.mu, self.C)]
+        NewgmmEM = 0
+        itteration = 1 + int(numpy.log2(self.numberOfComponents))
+
+        self.mu_Cov_weight_pair_each_class = {}
+
+        for label in set(list(self.info.label)):
+            # print("label=", label)
+            gmm_init = gmm_init_0
+            for i in range(itteration):
+                # print("GMM LEN", len(gmm_init))
+                NewgmmEM = self.GMM_EM(self.info.data[:, self.info.label == label], gmm_init)
+                if i < itteration - 1:
+                    gmm_init = self.gmmlbg(NewgmmEM, 0.1)
+            self.mu_Cov_weight_pair_each_class[label] = NewgmmEM
+
+    def applyTest(self):
+        final = numpy.zeros((len(set(self.info.testlable)), self.info.testData.shape[1]))
+        for i in set(list(self.info.label)):
+            GMM = self.mu_Cov_weight_pair_each_class[i]
+            SM = self.GMM_ll_PerSample(GMM)
+            final[int(i)] = SM[0]
+
+        density = numpy.exp(final)
+        self.llr = numpy.log(density[1, :] / density[0, :])
+        self.predictedLabelByGMM = final.argmax(0)
+        self.error = (self.predictedLabelByGMM == self.info.testlable).sum() / self.info.testlable.size
+        return
+
+    def checkAcc(self):
+        return self.info.testlable == self.predictedLabelByGMM
+        pass
+
+    def Log_pdf_MVG_ND(self, X, mu, C):
+        Y = [self.logpdf_ONEsample(X[:, i:i + 1], mu, C) for i in range(X.shape[1])]
+
+        return numpy.array(Y).ravel()
+
+    def make_row_matrix(self, row):
+        return row.reshape(1, row.size)
+
+    def logpdf_ONEsample(self, x, mu, C):
+        P = numpy.linalg.inv(C)
+        res = -0.5 * x.shape[0] * numpy.log(2 * numpy.pi)
+        res += -0.5 * numpy.linalg.slogdet(C)[1]
+        # error
+        res += -0.5 * numpy.dot(numpy.dot((x - mu).T, P), x - mu)
+        return res.ravel()
+
+    def GMM_EM(self, X, GMM):
         llNew = None
         llOld = None
         G = len(GMM)
@@ -18,7 +88,7 @@ class GMMEM(AlgorithmBasic):
             llOld = llNew
             SJ = numpy.zeros((G, N))
             for g in range(G):
-                SJ[g, :] = mymath.Log_pdf_MVG_ND(X, GMM[g][1], GMM[g][2]) + numpy.log(GMM[g][0])
+                SJ[g, :] = self.Log_pdf_MVG_ND(X, GMM[g][1], GMM[g][2]) + numpy.log(GMM[g][0])
             SM = scipy.special.logsumexp(SJ, axis=0)
             llNew = SM.sum() / N
             gmmnew = GMM
@@ -27,38 +97,38 @@ class GMMEM(AlgorithmBasic):
             for g in range(G):
                 gamma = P[g, :]
                 Z = gamma.sum()
-                F = (mymath.make_row_matrix(gamma) * X).sum(1)
-                S = numpy.dot(X, (mymath.make_row_matrix(gamma) * X).T)
+                F = (self.make_row_matrix(gamma) * X).sum(1)
+                S = numpy.dot(X, (self.make_row_matrix(gamma) * X).T)
                 w = Z / N
-                mu = mymath.make_col_matrix(F / Z)
+                mu = self.make_col_matrix(F / Z)
                 Sigma = S / Z - numpy.dot(mu, mu.T)
                 # diag sigma
-                if model == "diagnal":
+                if self.model == "diagonal":
                     Sigma = Sigma * numpy.eye(Sigma.shape[0])
                 # to apply threshold for EValues
                 U, s, _ = numpy.linalg.svd(Sigma)
-                s[s < thresholdForEValues] = thresholdForEValues
-                SigmaNew = numpy.dot(U, mymath.make_col_matrix(s) * U.T)
+                s[s < self.thresholdForEValues] = self.thresholdForEValues
+                SigmaNew = numpy.dot(U, self.make_col_matrix(s) * U.T)
                 gmmNew.append((w, mu, SigmaNew))
             GMM = gmmNew
-            print(llNew)
-        print(llNew - llOld)
+            # print(llNew)
+        # print(llNew - llOld)
         return gmmnew
 
-    def GMM_SJoint(self, X, GMM):
+    def GMM_SJoint(self, GMM):
         G = len(GMM)
-        N = X.shape[1]
+        N = self.info.testData.shape[1]
         SJ = numpy.zeros((G, N))
         for g in range(G):
-            SJ[g, :] = mymath.Log_pdf_MVG_ND(X, GMM[g][1], GMM[g][2]) + numpy.log(GMM[g][0])
+            SJ[g, :] = self.Log_pdf_MVG_ND(self.info.testData, GMM[g][1], GMM[g][2]) + numpy.log(GMM[g][0])
         return SJ
 
-    def GMM_ll_PerSample(self, X, GMM):
+    def GMM_ll_PerSample(self, GMM):
         G = len(GMM)
-        N = X.shape[1]
+        N = self.info.testData.shape[1]
         S = numpy.zeros((G, N))
         for g in range(G):
-            S[g, :] = mymath.Log_pdf_MVG_ND(X, GMM[g][1], GMM[g][2]) + numpy.log(GMM[g][0])
+            S[g, :] = self.Log_pdf_MVG_ND(self.info.testData, GMM[g][1], GMM[g][2]) + numpy.log(GMM[g][0])
         return scipy.special.logsumexp(S, axis=0)
 
     def gmmlbg(self, GMM, alpha):
@@ -72,35 +142,11 @@ class GMMEM(AlgorithmBasic):
             newGMM.append((w / 2, mu + d, CovarianMatrix))
         return newGMM
 
-    def GMM_EM_wrapper(self, DTR, LTR, DTE, LTE, thresholdForEValues, numberOfComponents, model="full"):
-        mu = mymath.imperical_mean(DTR)
-        C = mymath.Cov_matrix(mymath.normalize_data(DTR, mymath.imperical_mean(DTR)))
-        gmm_init_0 = [(1.0, mu, C)]
-        NewgmmEM = 0
 
-        itteration = 1 + int(numpy.log2(numberOfComponents))
-
-        mu_Cov_weight_pair_each_class = {}
-
-        for label in set(list(LTR)):
-            print("label=", label)
-            gmm_init = gmm_init_0
-            for i in range(itteration):
-                print("GMM LEN", len(gmm_init))
-                NewgmmEM = self.GMM_EM(DTR[:, LTR == label], gmm_init, thresholdForEValues, model)
-                if i < itteration - 1:
-                    gmm_init = self.gmmlbg(NewgmmEM, 0.1)
-            mu_Cov_weight_pair_each_class[label] = NewgmmEM
-
-        final = numpy.zeros((len(set(LTE)), DTE.shape[1]))
-        for i in set(list(LTR)):
-            GMM = mu_Cov_weight_pair_each_class[i]
-            SM = self.GMM_ll_PerSample(DTE, GMM)
-            final[i] = SM
-
-        density = numpy.exp(final)
-        llr = numpy.log(density[1, :] / density[0, :])
-
-        predictedLabelByGMM = final.argmax(0)
-        error = (predictedLabelByGMM == LTE).sum() / LTE.size
-        return predictedLabelByGMM, llr, error
+if __name__ == "__main__":
+    KFold = KFold(3)
+    for i in range(KFold.k):
+        GMMEM_ = GMMEM(KFold.infoSet[0], thresholdForEValues=0.5, numberOfComponents=4)
+        GMMEM_.applyTest()
+        KFold.addscoreList(GMMEM_.checkAcc())
+    KFold.ValidatClassfier("MGC")

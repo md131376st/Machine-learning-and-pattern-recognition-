@@ -2,13 +2,12 @@ import numpy as np
 import scipy.special as ss
 
 from Classifiers.algorithemsBasic import AlgorithmBasic
-from Data.Info import Info, KFold
+from Data.Info import KFold
 
 
 class MGC(AlgorithmBasic):
     def __init__(self, info=None):
         super().__init__(info)
-
 
         self.classTypes = len(set(self.info.testlable))
         self.mu_classes = []  # list of empirical mean for each class
