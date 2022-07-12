@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from PCA import PCA
+from Data.Info import Info
+from DimensionalityReduction.PCA import PCA
 
 
 def logpdf_GAU_ND(x, mu, C):
@@ -21,16 +22,6 @@ def logpdf_GAU_ND(x, mu, C):
     return np.array(y).ravel()
 
 
-class Info:
-    def __init__(self):
-        self.LoadData()
-
-    def LoadData(self):
-        self.data = np.genfromtxt("Train.txt", delimiter=",")
-        self.label = self.data[:, -1].T
-        self.data = self.data[:, :-1].T
-
-
 def Calculate_GAU(data):
     mean = data.mean(1)
     covarianceMatrix = np.cov(data)
@@ -43,35 +34,41 @@ def Calculate_GAU(data):
 
 def MaxLiklihoodEstimate(data):
     # compute mu_ML
-    mu_ML = data.mean(1).reshape(-1, 1)+1
+    # we add one to have at least 1 attribute for each feature
+    mu_ML = data.mean(1).reshape(-1, 1) + 1
     # compute sigma_ML
     centerData = data - mu_ML
     sigma_ML = 1 / data.shape[1] * np.dot(centerData, centerData.T)
     return mu_ML, sigma_ML, logpdf_GAU_ND(data, mu_ML, sigma_ML)
 
 
-# first reduce the feature dimentiality
-data = PCA(3)
-mu_ML, sigma_ML, y = MaxLiklihoodEstimate(data.projection_list)
-plt.figure()
-# plt.hist(data.projection_list.ravel(), bins=50, density=True)
-plt.hist(data.projection_list[:,data.label==0].ravel(), bins=100, density=True)
-plt.hist(data.projection_list[:,data.label==1].ravel(), bins=100, density=True)
-XPlot = np.linspace(-8, 12, data.projection_list.shape[1]).reshape(1, -1)
-# compute the density
-np.exp(y)
-plt.plot(XPlot.ravel(), np.exp(y))
-plt.show()
-
-data = data.data
-mu_ML, sigma_ML, y = MaxLiklihoodEstimate(data)
-plt.figure()
-# plt.hist(data.projection_list.ravel(), bins=50, density=True)
-plt.hist(data.ravel(), bins=100, density=True)
-XPlot = np.linspace(-8, 12, data.shape[1]).reshape(1, -1)
-
-plt.plot(XPlot.ravel(), np.exp(y))
-plt.show()
 # apply MVG
 # Calculate_GAU(data.projection_list)
 # apply Maximum Likelihood Estimate
+def checkMVGwithPCA():
+    # first reduce the feature dimentiality
+    data = PCA(4)
+    mu_ML, sigma_ML, y = MaxLiklihoodEstimate(data.projection_list)
+    plt.figure()
+    # plt.hist(data.projection_list.ravel(), bins=50, density=True)
+    plt.hist(data.projection_list[:, data.label == 0].ravel(), bins=100, density=True)
+    plt.hist(data.projection_list[:, data.label == 1].ravel(), bins=100, density=True)
+    XPlot = np.linspace(-8, 12, data.projection_list.shape[1]).reshape(1, -1)
+    # compute the density
+    np.exp(y)
+    plt.plot(XPlot.ravel(), np.exp(y))
+    plt.show()
+
+
+def MVG():
+    data = Info().data
+    mu_ML, sigma_ML, y = MaxLiklihoodEstimate(data)
+    plt.figure()
+    # plt.hist(data.projection_list.ravel(), bins=50, density=True)
+    plt.hist(data.ravel(), bins=100, density=True)
+    XPlot = np.linspace(-8, 12, data.shape[1]).reshape(1, -1)
+
+    plt.plot(XPlot.ravel(), np.exp(y))
+    plt.show()
+
+MVG()
