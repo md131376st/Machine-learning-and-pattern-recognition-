@@ -59,7 +59,7 @@ class PCA:
 # pca4 = PCA(7)
 # pca5 = PCA(6)
 # pca6 = PCA(5)
-# pca7 = PCA(4)
+pca7 = PCA(4)
 # pca8 = PCA(3)
 # pca9 = PCA(2)
 
